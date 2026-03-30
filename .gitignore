@@ -1,0 +1,28 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files (optional - uncomment if you want to exclude)
+# data/f1_cleaned.csv
+# data/rf_classifier_h2h.pkl
+# data/*_lookup.csv
+# data/model_info.pkl
