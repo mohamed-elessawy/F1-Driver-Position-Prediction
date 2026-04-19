@@ -4,8 +4,8 @@ A Formula 1 analytics dashboard built with Dash and Plotly for comparing driver 
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![Dash](https://img.shields.io/badge/Dash-2.9+-green.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
+## App Link Hosted on Plotly Cloud: [App_Link](https://72d41d06-2ef3-4d18-9939-027b049e6269.plotly.app/)
 ## Features
 
 - **Head-to-Head Comparison**: Compare two F1 drivers across multiple metrics
@@ -101,6 +101,9 @@ F1/
 - Set grid positions (must be unique)
 - View predicted finishing positions and winner
 
+### Tab 3: Top Drivers
+- Shows the all-time top 3-10 drivers based on race wins.
+
 ## Tech Stack
 
 - **Python 3.8+**
@@ -113,10 +116,6 @@ F1/
 ## Data Source
 
 Data from the [Ergast Developer API](http://ergast.com/mrd/) - a free Formula 1 historical database.
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details.
 
 ## Contributing
 
