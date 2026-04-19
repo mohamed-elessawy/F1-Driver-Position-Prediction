@@ -30,7 +30,7 @@ tab1_content = dbc.Container([
                     dcc.Dropdown(
                         id='driver-a-dropdown',
                         options=driver_options,
-                        value=driver_options[0]['value'] if driver_options else None,
+                        value=None,
                         placeholder="Select Driver A..."
                     )
                 ], md=5),
@@ -43,7 +43,7 @@ tab1_content = dbc.Container([
                     dcc.Dropdown(
                         id='driver-b-dropdown',
                         options=driver_options,
-                        value=driver_options[1]['value'] if len(driver_options) > 1 else None,
+                        value=None,
                         placeholder="Select Driver B..."
                     )
                 ], md=5),
@@ -61,7 +61,7 @@ tab2_content = dbc.Container([
             dcc.Dropdown(
                 id='circuit-dropdown',
                 options=circuit_options,
-                value=circuit_options[0]['value'] if circuit_options else None,
+                value=None,
                 placeholder="Select a circuit..."
             )
         ])
@@ -76,7 +76,7 @@ tab2_content = dbc.Container([
                     dcc.Dropdown(
                         id='pred-driver-a',
                         options=driver_options,
-                        value=driver_options[0]['value'] if driver_options else None,
+                        value=None,
                         placeholder="Select Driver A...",
                         className='mb-3'
                     ),
@@ -84,7 +84,7 @@ tab2_content = dbc.Container([
                     dcc.Dropdown(
                         id='constructor-a',
                         options=constructor_options,
-                        value=constructor_options[0]['value'] if constructor_options else None,
+                        value=None,
                         placeholder="Select Constructor...",
                         className='mb-3'
                     ),
@@ -103,7 +103,7 @@ tab2_content = dbc.Container([
                     dcc.Dropdown(
                         id='pred-driver-b',
                         options=driver_options,
-                        value=driver_options[1]['value'] if len(driver_options) > 1 else None,
+                        value=None,
                         placeholder="Select Driver B...",
                         className='mb-3'
                     ),
@@ -111,7 +111,7 @@ tab2_content = dbc.Container([
                     dcc.Dropdown(
                         id='constructor-b',
                         options=constructor_options,
-                        value=constructor_options[1]['value'] if len(constructor_options) > 1 else None,
+                        value=None,
                         placeholder="Select Constructor...",
                         className='mb-3'
                     ),
