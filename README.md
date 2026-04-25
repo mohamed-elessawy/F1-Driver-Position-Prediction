@@ -5,7 +5,7 @@ A Formula 1 analytics dashboard built with Dash and Plotly for comparing driver 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![Dash](https://img.shields.io/badge/Dash-2.9+-green.svg)
 
-## App Link Hosted on Plotly Cloud: [App_Link](https://72d41d06-2ef3-4d18-9939-027b049e6269.plotly.app/)
+### App Link Hosted on Plotly Cloud: [F1-Dashboard](https://240db74e-ef70-41a5-98b5-9f1373455f4f.plotly.app)
 ## Features
 
 - **Head-to-Head Comparison**: Compare two F1 drivers across multiple metrics
