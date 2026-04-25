@@ -6,7 +6,8 @@ import joblib
 import os
 Base_PATH = os.path.dirname(os.path.abspath(__file__))
 
-DATA_PATH = f'{Base_PATH}/data/'
+DATA_PATH   = f'{Base_PATH}/data/'
+MODELS_PATH = f'{Base_PATH}/models/'
 
 # ── Shared dark theme for all figures ──────────────────────────────────────
 DARK = dict(
@@ -95,8 +96,8 @@ def register_callbacks(app):
         avg_a, avg_b = data_a['positionOrder'].mean(), data_b['positionOrder'].mean()
         pts_a, pts_b = data_a['points'].sum(),        data_b['points'].sum()
 
-        dnf_a    = (data_a['positionOrder'] > 20).sum()
-        dnf_b    = (data_b['positionOrder'] > 20).sum()
+        dnf_a    = int(data_a['is_dnf'].sum()) if 'is_dnf' in data_a.columns else 0
+        dnf_b    = int(data_b['is_dnf'].sum()) if 'is_dnf' in data_b.columns else 0
         finish_a = len(data_a) - dnf_a
         finish_b = len(data_b) - dnf_b
 
@@ -177,7 +178,8 @@ def register_callbacks(app):
     )
     def predict_race(circuit_id, driver_a_id, driver_b_id, constructor_a, constructor_b, grid_a, grid_b):
         try:
-            clf        = joblib.load(f'{DATA_PATH}rf_classifier_h2h.pkl')
+            clf        = joblib.load(f'{MODELS_PATH}rf_h2h.pkl')
+            meta       = joblib.load(f'{MODELS_PATH}model_meta.pkl')
             drivers_df = pd.read_csv(f'{DATA_PATH}drivers_lookup.csv')
         except FileNotFoundError:
             return html.Div("Model not found. Run the notebook first.", className='warning-box')
@@ -194,16 +196,40 @@ def register_callbacks(app):
         name_a = drivers_df[drivers_df['driverId'] == driver_a_id]['full_name'].values[0]
         name_b = drivers_df[drivers_df['driverId'] == driver_b_id]['full_name'].values[0]
 
-        pit_default = 25000
-        pred_a = clf.predict([[driver_a_id, constructor_a, circuit_id, grid_a, grid_a, pit_default]])[0]
-        pred_b = clf.predict([[driver_b_id, constructor_b, circuit_id, grid_b, grid_b, pit_default]])[0]
+        driver_stats         = meta['driver_stats']
+        circuit_driver_stats = meta['circuit_driver_stats']
+        constructor_stats    = meta['constructor_stats']
+        global_avg_pos       = meta['global_avg_pos']
+        global_avg_pts       = meta['global_avg_pts']
 
-        if pred_a < pred_b:
-            winner, win_color, loser_name = name_a, RED,   name_b
-        elif pred_b < pred_a:
-            winner, win_color, loser_name = name_b, BLUE,  name_a
+        def _avg_pos(driver_id):
+            row = driver_stats[driver_stats['driverId'] == driver_id]
+            return float(row['avg_pos'].values[0]) if len(row) else global_avg_pos
+
+        def _circuit_avg(driver_id, cid):
+            row = circuit_driver_stats[
+                (circuit_driver_stats['driverId'] == driver_id) &
+                (circuit_driver_stats['circuitId'] == cid)
+            ]
+            return float(row['circuit_avg_pos'].values[0]) if len(row) else _avg_pos(driver_id)
+
+        def _constructor_pts(constructor_id):
+            row = constructor_stats[constructor_stats['constructorId'] == constructor_id]
+            return float(row['avg_pts'].values[0]) if len(row) else global_avg_pts
+
+        features = pd.DataFrame([[
+            grid_a, grid_b,
+            _avg_pos(driver_a_id),       _avg_pos(driver_b_id),
+            _circuit_avg(driver_a_id, circuit_id), _circuit_avg(driver_b_id, circuit_id),
+            _constructor_pts(constructor_a), _constructor_pts(constructor_b)
+        ]], columns=meta['feature_columns'])
+
+        prob_a_wins = clf.predict_proba(features)[0][1]
+
+        if prob_a_wins >= 0.5:
+            winner, win_color, confidence = name_a, RED,  prob_a_wins
         else:
-            winner, win_color, loser_name = "TIE",  AMBER, ""
+            winner, win_color, confidence = name_b, BLUE, 1.0 - prob_a_wins
 
         return html.Div([
             html.P("RACE PREDICTION RESULTS",
@@ -212,7 +238,7 @@ def register_callbacks(app):
             dbc.Row([
                 dbc.Col([
                     html.Div("Driver A", className='badge-a'),
-                    html.P([html.Strong(name_a), f"  →  P{pred_a}"],
+                    html.P(html.Strong(name_a),
                            style={'fontSize': '1.1rem', 'color': '#c0c0d8', 'marginBottom': '6px',
                                   'textAlign': 'center'})
                 ], md=5, style={'textAlign': 'center'}),
@@ -222,7 +248,7 @@ def register_callbacks(app):
                 ),
                 dbc.Col([
                     html.Div("Driver B", className='badge-b'),
-                    html.P([html.Strong(name_b), f"  →  P{pred_b}"],
+                    html.P(html.Strong(name_b),
                            style={'fontSize': '1.1rem', 'color': '#c0c0d8', 'marginBottom': '6px',
                                   'textAlign': 'center'})
                 ], md=5, style={'textAlign': 'center'}),
@@ -234,6 +260,8 @@ def register_callbacks(app):
                               'letterSpacing': '2px', 'marginBottom': '8px'}),
                 html.H2(winner, style={'color': win_color, 'fontWeight': '900',
                                        'fontSize': '2.2rem', 'letterSpacing': '-0.5px',
-                                       'textShadow': f'0 0 30px {win_color}88'})
+                                       'textShadow': f'0 0 30px {win_color}88'}),
+                html.P(f"Model confidence: {confidence:.0%}",
+                       style={'color': '#8888aa', 'fontSize': '0.85rem', 'marginTop': '8px'})
             ], style={'textAlign': 'center', 'padding': '10px 0'})
         ])
